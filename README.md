@@ -31,7 +31,7 @@ The application includes basic e-commerce features such as:
       ▼               ▼               ▼               ▼
  MongoDB         MongoDB         MongoDB         MongoDB
 ```
-## 🛠️ Tech Stack
+## Tech Stack
 
 ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
