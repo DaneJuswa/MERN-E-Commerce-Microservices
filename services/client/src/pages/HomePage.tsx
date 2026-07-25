@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { fetchProducts, placeOrder} from "../apis/fetchproducts";
+import { fetchProducts} from "../apis/fetchproducts";
+import { placeOrder } from "../apis/placeOrder";
+
 import {CATEGORY_META} from "../shared/categories"
 import Header from "../components/Header";
 import ProductGrid from "../components/ProductGrid";
@@ -38,13 +40,12 @@ type CartLineItem = Product & {
   qty: number;
 }
 
-// Shape returned by the (currently mocked) placeOrder API call.
 // Swap this for ApiResponse<Order> once placeOrder hits a real backend.
-interface PlaceOrderResult {
+interface PlaceOrderResult  {
   orderId: ID;
 }
 
-export default function App() {
+export default function HomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [query, setQuery] = useState("");
@@ -112,6 +113,7 @@ useEffect(() => {
     });
   }
 
+  //fumction for submitting a form (order)
   async function handlePlaceOrder(e: React.FormEvent) {
     e.preventDefault();
     setPlacing(true);
@@ -136,7 +138,8 @@ useEffect(() => {
       totalAmount: total,
     };
 
-    const result: PlaceOrderResult = await placeOrder(orderPayload);
+    //the result of placing an order
+    const result: PlaceOrderResult  = await placeOrder(orderPayload);
 
     setOrderId(result.orderId);
     setView("confirmed");
