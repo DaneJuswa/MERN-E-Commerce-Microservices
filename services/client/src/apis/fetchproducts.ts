@@ -1,4 +1,4 @@
-import { ShoppingBag, Wrench, Home as HomeIcon, BookOpen } from "lucide-react";
+
 import type { Product } from "../types/product";
 export const API_BASE = ""; // e.g. "http://localhost:4000/api"
 

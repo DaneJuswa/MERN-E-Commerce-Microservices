@@ -1,5 +1,5 @@
 import type {ProductsCategory}  from "../types/products";
-import { ShoppingBag, Shirt, Wrench,  Refrigerator, Cpu,Home as HomeIcon, BookOpen } from "lucide-react";
+import { ShoppingBag, Shirt,  Refrigerator, Cpu,Home as HomeIcon, BookOpen } from "lucide-react";
 
 export const CATEGORY_META: Record<ProductsCategory, {
   icon: any;
