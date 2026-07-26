@@ -1,24 +1,18 @@
 // models/User.ts
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, Document, HydratedDocument } from "mongoose";
 
 export type AuthProvider = "local" | "google" | "facebook";
 
 export interface IUser extends Document {
-  id?: Types.ObjectId;
   name: string;
   email: string;
-  password?: string; // optional: OAuth users (google/facebook) have no local password
+  password?: string; //OPTIONAL FOR OAUTH USER
   provider: AuthProvider;
   verified: boolean;
-
-  // Email verification
   verificationToken?: string;
   verificationTokenExpires?: Date;
-
-  // Password reset
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-
   createdAt: Date;
   updatedAt: Date;
 }
@@ -43,7 +37,7 @@ const userSchema = new Schema<IUser>(
     password: {
       type: String,
       // Required only for local accounts; google/facebook users won't have one
-      required: function (this: IUser) {
+       required: function (this: HydratedDocument<IUser>) {
         return this.provider === "local";
       },
       select: false, // never return password by default in queries

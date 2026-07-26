@@ -9,7 +9,7 @@ import {
   Loader2,
   ShoppingBag,
 } from "lucide-react";
-import { login } from "../apis/auth";
+
 
 
 export default function LoginPage() {
@@ -21,17 +21,24 @@ export default function LoginPage() {
 
   const navigate = useNavigate();
   //login
-  const handleLogin = async (e) => {
+  const handleLogin = async (e:any) => {
     e.preventDefault();
     
     try {
       setLoading(true);
-      const res = await login({
-        email,
-        password,
-      });
-      console.log(res.data);
-      navigate("/home");
+      const res = await fetch("http://localhost:4000/api/auth/login", { 
+        method:"POST",
+        credentials: "include",
+        headers:{"Content-Type": "Application/json"},
+        body: JSON.stringify({email, password})
+      })
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Something went wrong. Please try again.");
+      }
+      navigate("/");
     } catch (err) {
       console.error(err);
     } finally {

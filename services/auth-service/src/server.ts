@@ -1,12 +1,12 @@
+import "dotenv/config"
 import express from "express"
 import cors from "cors"
-import dotenv from "dotenv"
 import cookieParser from "cookie-parser";
 import connectDB from "./config/dbConfig.js";
 import authRoute from "./routes/authRoutes.js"
 
 
-dotenv.config()
+
 const app = express()
 
 app.use(cors({

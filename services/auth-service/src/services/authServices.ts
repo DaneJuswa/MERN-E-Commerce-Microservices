@@ -68,9 +68,15 @@ export const register = async ({name, email, password,}: RegisterInput) => {
 
 // Login
 export const login = async ({email, password}: LoginInput) => {
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
+  console.log("user.password:", user?.password); // should print the hash, not undefined
 
   if (!user) {
+    throw new Error("Invalid credentials");
+  }
+
+  if (!user.password) {
+    // OAuth-only account trying to log in with a password
     throw new Error("Invalid credentials");
   }
 
@@ -83,30 +89,22 @@ export const login = async ({email, password}: LoginInput) => {
     throw new Error("Invalid credentials");
   }
 
-  const accessToken = jwt.sign(
-    {
-      id: user._id,
-      email: user.email,
-    },
-    process.env.JWT_SECRET!,
-    {
-      expiresIn: "15m",
-    }
-  );
+  const accessToken = jwt.sign({id: user._id, email: user.email,}, process.env.JWT_SECRET!,
+    {expiresIn: "15m",});
 
-  const refreshToken = jwt.sign(
-    {
-      id: user._id,
-    },
-    process.env.REFRESH_SECRET!,
-    {
-      expiresIn: "7d",
-    }
-  );
+    
+  // const refreshToken = jwt.sign(
+  //   {
+  //     id: user._id,
+  //   },
+  //   process.env.REFRESH_SECRET!,
+  //   {
+  //     expiresIn: "7d",
+  //   }
+  // );
 
   return {
     accessToken,
-    refreshToken,
     user,
   };
 };
@@ -230,18 +228,6 @@ export const verifyEmail = async (token: string) => {
     message: "Email verified successfully.",
   };
 };
-
-//for checking verififcation status
-export const checkVerificationStatus = async (email: string) => {
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new Error("User not found.");
-  }
-
-  return { verified: user.verified };
-};
-
 
 
 
