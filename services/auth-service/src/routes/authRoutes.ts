@@ -1,11 +1,16 @@
 import { Router } from "express";
 import * as auth from "../controllers/authController.js"
 import {authenticate} from "../middleware/authMiddleware.js"
+import { validateRegisterDate } from "../middleware/registerMiddleware.js";
+import { registerSchema } from "../schema/registerSchema.js";
+
 const authRoute = Router();
 
 
 //pass to controller
-authRoute.post("/register", auth.register);
+authRoute.post("/register", validateRegisterDate(registerSchema),  auth.register);
+
+authRoute.get("/verification-status", auth.checkVerificationStatus);
 
 authRoute.post("/login", auth.login);
 

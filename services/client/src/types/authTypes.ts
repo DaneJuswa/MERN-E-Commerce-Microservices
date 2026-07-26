@@ -1,3 +1,13 @@
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  provider: "local" | "google" | "facebook";
+  verified: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -9,13 +19,7 @@ export interface RegisterData {
   password: string;
 }
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
 export interface AuthResponse {
-  token: string;
+  message: string;
   user: User;
 }

@@ -1,8 +1,11 @@
 // services/auth.service.ts
 
+//business logic
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../models/User";
+import User from "../models/userModel.js";
+import crypto from "crypto"
+import { SendVerification } from "./verificationService.js";
 
 interface RegisterInput {
   name: string;
@@ -15,13 +18,9 @@ interface LoginInput {
   password: string;
 }
 
-// Register
-export const register = async ({
-  name,
-  email,
-  password,
-}: RegisterInput) => {
-  const existingUser = await User.findOne({ email });
+// Register user 
+export const register = async ({name, email, password,}: RegisterInput) => {
+ const existingUser = await User.findOne({email})
 
   if (existingUser) {
     throw new Error("Email already exists");
@@ -29,30 +28,46 @@ export const register = async ({
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Generate email verification token
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const verificationTokenExpires = new Date(
+      Date.now() + 1000 * 60 * 60 * 24 // 24 hours
+    );
+
   const user = await User.create({
     name,
     email,
     password: hashedPassword,
-    verified: false,
     provider: "local",
+    verified: false,
+    verificationToken,
+    verificationTokenExpires,
   });
 
-  // TODO:
-  // Generate verification token
-  // Send verification email
-  // Publish Kafka UserCreated event
+
+  await SendVerification(
+      user.email,
+      verificationToken
+  );
+
+  const userResponse = user.toObject();
+
+  delete userResponse.password;
+  delete userResponse.verificationToken;
+  delete userResponse.verificationTokenExpires;
+  delete userResponse.resetPasswordToken;
+  delete userResponse.resetPasswordExpires;
+
+  
 
   return {
-    message: "Registration successful",
-    user,
+     message: "Registration successful. Please verify your email.",
+    user: userResponse,
   };
 };
 
 // Login
-export const login = async ({
-  email,
-  password,
-}: LoginInput) => {
+export const login = async ({email, password}: LoginInput) => {
   const user = await User.findOne({ email });
 
   if (!user) {
@@ -190,18 +205,45 @@ export const refresh = async (
   };
 };
 
-// Verify Email
-export const verifyEmail = async (
-  token: string
-) => {
-  // TODO:
-  // Find verification token
-  // Update verified=true
+// Verify Email Service
+export const verifyEmail = async (token: string) => {
+  if (!token) {
+    throw new Error("Verification token is required.");
+  }
+
+  const user = await User.findOne({
+    verificationToken: token,
+    verificationTokenExpires: { $gt: new Date() },
+  }).select("+verificationToken +verificationTokenExpires");
+
+  if (!user) {
+    throw new Error("Invalid or expired verification token.");
+  }
+
+  user.verified = true;
+  user.verificationToken = undefined;
+  user.verificationTokenExpires = undefined;
+
+  await user.save();
 
   return {
-    message: "Email verified",
+    message: "Email verified successfully.",
   };
 };
+
+//for checking verififcation status
+export const checkVerificationStatus = async (email: string) => {
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  return { verified: user.verified };
+};
+
+
+
 
 // Forgot Password
 export const forgotPassword = async (

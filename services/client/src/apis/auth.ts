@@ -2,7 +2,7 @@ import axios from "axios";
 import type { LoginCredentials, AuthResponse, RegisterData, User } from "../types/authTypes";
 
 const authAPI = axios.create({
-  baseURL: "http://localhost:5001/api/auth",
+  baseURL: "http://localhost:4000/api/auth",
   withCredentials: true,
 });
 
@@ -13,8 +13,11 @@ export const login = (credentials: LoginCredentials) =>{
   }
 
 
-export const register = (userData: RegisterData) =>
-  authAPI.post<AuthResponse>("/register", userData);
+export const register = async (userData: RegisterData): Promise<AuthResponse> => {
+  const { data } = await authAPI.post<AuthResponse>("/register", userData);
+  
+  return data;
+};
 
 export const logout = () =>
   authAPI.post("/logout");
