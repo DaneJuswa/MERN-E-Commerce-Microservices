@@ -2,7 +2,7 @@
 
 import { Request, Response } from "express";
 import * as authService from "../services/authServices.js";
-
+import { AuthRequest } from "../middleware/authMiddleware.js";
 
 interface VerifyEmailParams {
   token: string;
@@ -23,12 +23,21 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-//controller for login
+//controller for manual login
 export const login = async (req: Request, res: Response) => {
   try {
     const result = await authService.login(req.body);
+    const token =  result.accessToken
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // true in production with HTTPS
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
 
-    return res.status(200).json(result);
+return res.json({
+  message: "Login successful",
+});
   } catch (error: any) {
     return res.status(401).json({
       message: error.message,
@@ -88,24 +97,6 @@ export const verifyEmail = async (req: Request<VerifyEmailParams>, res: Response
 };
 
 
-// controllers for verifying status of register
-export const checkVerificationStatus = async (req: Request, res: Response) => {
-  try {
-    const { email } = req.query;
-
-
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ message: "Email is required." });
-    }
-
-    const result = await authService.checkVerificationStatus(email);
-
-    return res.status(200).json(result);
-  } catch (error: any) {
-    return res.status(404).json({ message: error.message });
-  }
-};
-
 
 //controller for forgot password
 export const forgotPassword = async (req: Request, res: Response) => {
@@ -137,9 +128,18 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 
 //controller for fetching user
-export const getCurrentUser = async (req: Request, res: Response) => {
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response
+) => {
   try {
-    const result = await authService.getCurrentUser(req);
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    const result = await authService.getCurrentUser(req.user.id);
 
     return res.status(200).json(result);
   } catch (error: any) {
