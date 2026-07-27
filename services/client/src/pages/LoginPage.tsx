@@ -1,14 +1,8 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Mail,
-  Lock,
-  Eye,
-  EyeOff,
-  Loader2,
-  ShoppingBag,
-} from "lucide-react";
+import {Mail, Lock, Eye, EyeOff, Loader2, ShoppingBag,} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 
 
@@ -18,6 +12,7 @@ export default function LoginPage() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { setIsAuthenticated } = useAuth();
 
   const navigate = useNavigate();
   //login
@@ -38,6 +33,7 @@ export default function LoginPage() {
       if (!res.ok) {
         throw new Error(data.message || "Something went wrong. Please try again.");
       }
+      setIsAuthenticated(true)
       navigate("/");
     } catch (err) {
       console.error(err);
