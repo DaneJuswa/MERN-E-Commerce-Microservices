@@ -4,6 +4,11 @@ import { Request, Response } from "express";
 import * as authService from "../services/authServices.js";
 import { AuthRequest } from "../middleware/authMiddleware.js";
 
+import passport from "../config/passportConfig.js";
+
+
+
+
 interface VerifyEmailParams {
   token: string;
 }
@@ -27,7 +32,8 @@ export const register = async (req: Request, res: Response) => {
 export const login = async (req: Request, res: Response) => {
   try {
     const result = await authService.login(req.body);
-    const token =  result.accessToken
+    const token = result.accessToken
+
     res.cookie("token", token, {
       httpOnly: true,
       secure: false, // true in production with HTTPS
@@ -35,9 +41,9 @@ export const login = async (req: Request, res: Response) => {
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
-return res.json({
-  message: "Login successful",
-});
+    return res.json({
+      message: "Login successful",
+    });
   } catch (error: any) {
     return res.status(401).json({
       message: error.message,
@@ -46,17 +52,38 @@ return res.json({
 };
 
 //controller for google login
-export const googleLogin = async (req: Request, res: Response) => {
-  try {
-    const result = await authService.googleLogin(req.body);
+export const googleCallback = [
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=google_auth_failed`,
+  }),
+  async (req: Request, res: Response) => {
+    try {
+      const profile = req.user as { id: string; emails: { value: string }[]; displayName: string };
 
-    return res.status(200).json(result);
-  } catch (error: any) {
-    return res.status(401).json({
-      message: error.message,
-    });
-  }
-};
+      const result = await authService.googleLogin({
+        id: profile.id,
+        email: profile.emails[0].value,
+        name: profile.displayName,
+      });
+
+      const token = result.accessToken;
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // true in production with HTTPS
+        sameSite: "strict",
+        maxAge: 2 * 60 * 1000, // matches "2min" expiry above
+      });
+
+      return res.redirect(`${process.env.CLIENT_URL}/`);
+    } catch (error: any) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=${error.message}`);
+    }
+  },
+];
+
+
 
 //controller for facebook
 export const facebookLogin = async (req: Request, res: Response) => {
@@ -89,7 +116,7 @@ export const verifyEmail = async (req: Request<VerifyEmailParams>, res: Response
   const FRONTEND_URL = "http://localhost:5173";
   try {
     const result = await authService.verifyEmail(req.params.token);
-     return res.redirect(`${FRONTEND_URL}/email-verified`);
+    return res.redirect(`${FRONTEND_URL}/email-verified`);
   } catch (error: any) {
     console.log(error)
     return res.redirect(`${FRONTEND_URL}/login?verified=false`);
@@ -128,10 +155,7 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 
 //controller for fetching user
-export const getCurrentUser = async (
-  req: AuthRequest,
-  res: Response
-) => {
+export const getCurrentUser = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user) {
       return res.status(401).json({
