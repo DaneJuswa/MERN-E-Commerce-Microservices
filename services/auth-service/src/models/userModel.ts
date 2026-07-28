@@ -4,10 +4,12 @@ import { Schema, model, Document, HydratedDocument } from "mongoose";
 export type AuthProvider = "local" | "google" | "facebook";
 
 export interface IUser extends Document {
-  name: string;
+  name?: string;
   email: string;
   password?: string; //OPTIONAL FOR OAUTH USER
   provider: AuthProvider;
+  googleId?: string;
+  facebookId?: string;
   verified: boolean;
   verificationToken?: string;
   verificationTokenExpires?: Date;
@@ -47,6 +49,16 @@ const userSchema = new Schema<IUser>(
       enum: ["local", "google", "facebook"],
       default: "local",
       required: true,
+    },
+    googleId: { //for google login
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    facebookId: { //for facebook login
+      type: String,
+      unique: true,
+      sparse: true,
     },
     verified: {
       type: Boolean,

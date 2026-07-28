@@ -4,6 +4,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser";
 import connectDB from "./config/dbConfig.js";
 import authRoute from "./routes/authRoutes.js"
+import passport from "./config/passportConfig.js"; // 👈 Import this
 
 
 
@@ -18,6 +19,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 app.use(cookieParser())
 
+
+app.use(passport.initialize()); // 👈 Initialize Passport
 
 connectDB();
 

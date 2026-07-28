@@ -89,8 +89,12 @@ export const login = async ({email, password}: LoginInput) => {
     throw new Error("Invalid credentials");
   }
 
+  if (!user.verified) {
+    throw new Error("Please verify your email before logging in");
+  }
+
   const accessToken = jwt.sign({id: user._id, email: user.email,}, process.env.JWT_SECRET!,
-    {expiresIn: "15m",});
+    {expiresIn: "2min",});
 
     
   // const refreshToken = jwt.sign(
@@ -110,38 +114,46 @@ export const login = async ({email, password}: LoginInput) => {
 };
 
 // Google Login
-export const googleLogin = async (googleUser: {
-  email: string;
-  name: string;
-}) => {
-  let user = await User.findOne({
-    email: googleUser.email,
-  });
+
+export const googleLogin = async (profile: {id: string; email: string; name: string;}) => {
+  let user = await User.findOne({ googleId: profile.id });
 
   if (!user) {
-    user = await User.create({
-      ...googleUser,
-      provider: "google",
-      verified: true,
-    });
+    user = await User.findOne({ email: profile.email });
+
+    if (user) {
+      if (!user.googleId) {
+        user.googleId = profile.id;
+        user.verified = true;
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name: profile.name,
+        email: profile.email,
+        provider: "google",
+        googleId: profile.id,
+        verified: true,
+      });
+    }
   }
 
   const accessToken = jwt.sign(
-    {
-      id: user._id,
-      email: user.email,
-    },
+    { id: user._id, email: user.email },
     process.env.JWT_SECRET!,
-    {
-      expiresIn: "15m",
-    }
+    { expiresIn: "2min" } // match your login's expiry — or pick one shared value, see note below
   );
+
+  const userResponse = user.toObject();
+  delete userResponse.password; // safe even if undefined
 
   return {
     accessToken,
-    user,
+    user: userResponse,
   };
 };
+
+
 
 // Facebook Login
 export const facebookLogin = async (facebookUser: {
@@ -203,7 +215,7 @@ export const refresh = async (
   };
 };
 
-// Verify Email Service
+// When Verify account
 export const verifyEmail = async (token: string) => {
   if (!token) {
     throw new Error("Verification token is required.");
