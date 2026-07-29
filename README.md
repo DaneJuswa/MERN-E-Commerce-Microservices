@@ -9,19 +9,19 @@ This project is a learning implementation of microservices using the MERN stack.
 
 The application includes features such as:
 
-- 🔐 JWT Authentication
-- 🔑 OAuth Login (Google & Facebook)
-- 📦 Product Catalog
-- 🛍️ Shopping Cart
-- 📋 Order Management
-- 💳 Checkout Flow
-- 📈 API Gateway
-- 📨 Event-Driven Communication
-- ⚡ Apache Kafka Messaging
-- 🔄 Service-to-Service Communication
-- 🐳 Dockerized Services
-- 🌐 REST APIs
-- ⚡ Independent Service Deployment
+- JWT Authentication
+- OAuth Login (Google & Facebook)
+- Product Catalog
+- Shopping Cart
+- Order Management
+- Checkout Flow
+- API Gateway
+- Event-Driven Communication
+- Apache Kafka Messaging
+- Service-to-Service Communication
+- Dockerized Services
+- REST APIs
+- Independent Service Deployment
 
 ---
 
