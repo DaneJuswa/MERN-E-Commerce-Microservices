@@ -47,7 +47,7 @@ export default function LoginPage() {
 };
 
   const handleFacebook = () => {
-    console.log("Facebook Login");
+    window.location.href = "http://localhost:4000/api/auth/facebook";
   };
 
   return (

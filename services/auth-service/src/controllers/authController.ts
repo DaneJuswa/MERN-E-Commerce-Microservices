@@ -83,6 +83,40 @@ export const googleCallback = [
   },
 ];
 
+export const facebookCallback = [
+  passport.authenticate("facebook", {
+    session: false, 
+    failureRedirect: `${process.env.CLIENT_URL}/login?error=facebook_auth_failed`
+  }), 
+  async (req: Request, res: Response) => {
+    try {
+      const profile = req.user as {id: string; emails: {value:string}[]; displayName: string}
+
+      console.log(profile.displayName)
+      const result = await authService.facebookLogin({
+        id: profile.id,
+        email: profile.emails[0].value,
+        name: profile.displayName
+      })
+
+      
+      const token = result.accessToken
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // true in production with HTTPS
+        sameSite: "strict",
+        maxAge: 2 * 60 * 1000, // matches "2min" expiry above
+      });
+
+      return res.redirect(`${process.env.CLIENT_URL}/`);
+
+    } catch (error) {
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=${error.message}`);
+    }
+  }
+]
+
 
 
 //controller for facebook

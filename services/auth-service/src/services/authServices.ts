@@ -19,8 +19,8 @@ interface LoginInput {
 }
 
 // Register user 
-export const register = async ({name, email, password,}: RegisterInput) => {
- const existingUser = await User.findOne({email})
+export const register = async ({ name, email, password, }: RegisterInput) => {
+  const existingUser = await User.findOne({ email })
 
   if (existingUser) {
     throw new Error("Email already exists");
@@ -28,11 +28,11 @@ export const register = async ({name, email, password,}: RegisterInput) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Generate email verification token
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const verificationTokenExpires = new Date(
-      Date.now() + 1000 * 60 * 60 * 24 // 24 hours
-    );
+  // Generate email verification token
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+  const verificationTokenExpires = new Date(
+    Date.now() + 1000 * 60 * 60 * 24 // 24 hours
+  );
 
   const user = await User.create({
     name,
@@ -46,8 +46,8 @@ export const register = async ({name, email, password,}: RegisterInput) => {
 
 
   await SendVerification(
-      user.email,
-      verificationToken
+    user.email,
+    verificationToken
   );
 
   const userResponse = user.toObject();
@@ -58,16 +58,16 @@ export const register = async ({name, email, password,}: RegisterInput) => {
   delete userResponse.resetPasswordToken;
   delete userResponse.resetPasswordExpires;
 
-  
+
 
   return {
-     message: "Registration successful. Please verify your email.",
+    message: "Registration successful. Please verify your email.",
     user: userResponse,
   };
 };
 
 // Login
-export const login = async ({email, password}: LoginInput) => {
+export const login = async ({ email, password }: LoginInput) => {
   const user = await User.findOne({ email }).select("+password");
   console.log("user.password:", user?.password); // should print the hash, not undefined
 
@@ -93,10 +93,10 @@ export const login = async ({email, password}: LoginInput) => {
     throw new Error("Please verify your email before logging in");
   }
 
-  const accessToken = jwt.sign({id: user._id, email: user.email,}, process.env.JWT_SECRET!,
-    {expiresIn: "2min",});
+  const accessToken = jwt.sign({ id: user._id, email: user.email, }, process.env.JWT_SECRET!,
+    { expiresIn: "2min", });
 
-    
+
   // const refreshToken = jwt.sign(
   //   {
   //     id: user._id,
@@ -115,7 +115,7 @@ export const login = async ({email, password}: LoginInput) => {
 
 // Google Login
 
-export const googleLogin = async (profile: {id: string; email: string; name: string;}) => {
+export const googleLogin = async (profile: { id: string; email: string; name: string; }) => {
   let user = await User.findOne({ googleId: profile.id });
 
   if (!user) {
@@ -154,40 +154,45 @@ export const googleLogin = async (profile: {id: string; email: string; name: str
 };
 
 
-
-// Facebook Login
-export const facebookLogin = async (facebookUser: {
-  email: string;
-  name: string;
-}) => {
-  let user = await User.findOne({
-    email: facebookUser.email,
-  });
+//facebook login
+export const facebookLogin = async (profile: { id: string; email: string; name: string; }) => {
+  let user = await User.findOne({ googleId: profile.id });
 
   if (!user) {
-    user = await User.create({
-      ...facebookUser,
-      provider: "facebook",
-      verified: true,
-    });
+    user = await User.findOne({ email: profile.email });
+
+    if (user) {
+      if (!user.facebookId) {
+        user.googleId = profile.id;
+        user.verified = true;
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name: profile.name,
+        email: profile.email,
+        provider: "facebook",
+        googleId: profile.id,
+        verified: true,
+      });
+    }
   }
 
   const accessToken = jwt.sign(
-    {
-      id: user._id,
-      email: user.email,
-    },
-    process.env.JWT_SECRET!,
-    {
-      expiresIn: "15m",
-    }
-  );
+      { id: user._id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "2min" } // match your login's expiry — or pick one shared value, see note below
+    );
 
-  return {
-    accessToken,
-    user,
-  };
-};
+    const userResponse = user.toObject();
+    delete userResponse.password; // safe even if undefined
+
+    return {
+      accessToken,
+      user: userResponse,
+    };
+}
+
 
 // Refresh Token
 export const refresh = async (
