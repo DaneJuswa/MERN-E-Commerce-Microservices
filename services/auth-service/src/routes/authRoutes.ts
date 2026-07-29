@@ -15,7 +15,11 @@ authRoute.post("/login", auth.login);
 authRoute.get("/google", passport.authenticate("google", {scope: ["profile", "email"],session: false,}));
 authRoute.get("/google/callback", auth.googleCallback);
 
-authRoute.post("/facebook", auth.facebookLogin);
+authRoute.get("/facebook", passport.authenticate("facebook", {scope: ["email"], session: false,}))
+authRoute.get("/facebook/callback", auth.facebookCallback)
+
+
+// authRoute.post("/facebook", auth.facebookLogin);
 
 authRoute.post("/refresh", auth.refreshToken);
 authRoute.get("/verify-email/:token", auth.verifyEmail);
