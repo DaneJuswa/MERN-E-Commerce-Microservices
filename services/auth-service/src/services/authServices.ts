@@ -44,7 +44,6 @@ export const register = async ({ name, email, password, }: RegisterInput) => {
     verificationTokenExpires,
   });
 
-
   await SendVerification(
     user.email,
     verificationToken
@@ -57,8 +56,6 @@ export const register = async ({ name, email, password, }: RegisterInput) => {
   delete userResponse.verificationTokenExpires;
   delete userResponse.resetPasswordToken;
   delete userResponse.resetPasswordExpires;
-
-
 
   return {
     message: "Registration successful. Please verify your email.",
