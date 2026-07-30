@@ -1,5 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
-import VerificationModal from "../ui/VerificationModal";
+import VerificationModal from "./VerificationModal";
 
 export default function VerificationPending() {
   const location = useLocation();

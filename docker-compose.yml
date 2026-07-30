@@ -2,11 +2,11 @@ services:
   ## container for client, calls Dockerfile in client
   client:
     build:
-      context: ./services/client
+      context: ./client
     container_name: ecommerce-client
     ports:
       - "5173:5173"
     volumes:
-      - ./services/client:/app
+      - ./client:/app
       - /app/node_modules
     command: npm run dev -- --host
