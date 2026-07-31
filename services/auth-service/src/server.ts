@@ -24,7 +24,6 @@ app.use(passport.initialize()); // 👈 Initialize Passport
 
 connectDB();
 
-
 app.use("/api/auth", authRoute)
 
 

@@ -189,18 +189,20 @@ export const resetPassword = async (req: Request, res: Response) => {
 };
 
 //controller for fetching user
-export const getCurrentUser = async (req: AuthRequest, res: Response) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({
-        message: "Unauthorized",
-      });
-    }
+export const getCurrentUser = async (req: Request, res: Response) => {
 
-    const result = await authService.getCurrentUser(req.user.id);
+  const userId = req.headers["x-user-id"] as string;
+  console.log("andito ngani")
+
+  console.log(userId)
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized access" });
+  }
+  try {
+    const result = await authService.getCurrentUser(userId);
 
     return res.status(200).json(result);
-  } catch (error: any) {
+  } catch (error: any) { 
     return res.status(401).json({
       message: error.message,
     });
