@@ -1,9 +1,40 @@
 import { createProxyMiddleware } from "http-proxy-middleware";
+import dotenv from "dotenv"
+dotenv.config()
 
+//shared
+const forwardUserHeaders = (proxyReq: any, req: any) => {
+    if (req.headers["x-user-id"]) {
+        proxyReq.setHeader("x-user-id", req.headers["x-user-id"] as string);
+    }
+    if (req.headers["x-user-email"]) {
+        proxyReq.setHeader("x-user-email", req.headers["x-user-email"] as string);
+    }
+};
+
+// Public auth routes (register, login, etc.) — req.url still has a segment after "/auth"
 export const authProxy = createProxyMiddleware({
     target: process.env.AUTH_SERVICE!,
-    changeOrigin: true
-}) 
+    changeOrigin: true,
+    pathRewrite: {
+        "^/": "/api/auth/"
+    },
+    on: {
+        proxyReq: forwardUserHeaders
+    }
+});
+
+// pathRewrite needs the full target path hardcoded, not reconstructed from req.url
+export const authMeProxy = createProxyMiddleware({
+    target: process.env.AUTH_SERVICE!,
+    changeOrigin: true,
+    pathRewrite: {
+        "^/": "/api/auth/me"
+    },
+    on: {
+        proxyReq: forwardUserHeaders
+    }
+});
 
 export const orderProxy = createProxyMiddleware({
     target: process.env.ORDER_SERVICE!,

@@ -281,11 +281,8 @@ export const resetPassword = async (
 };
 
 // Get Current User
-export const getCurrentUser = async (
-  userId: string
-) => {
+export const getCurrentUser = async (userId: string) => {
   const user = await User.findById(userId)
     .select("-password");
-
   return user;
 };

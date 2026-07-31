@@ -25,6 +25,6 @@ authRoute.post("/refresh", auth.refreshToken);
 authRoute.get("/verify-email/:token", auth.verifyEmail);
 authRoute.post("/forgot-password", auth.forgotPassword);
 authRoute.post("/reset-password/:token", auth.resetPassword);
-authRoute.get("/me", authenticate, auth.getCurrentUser);
+authRoute.get("/me",  auth.getCurrentUser);
 
 export default authRoute;

@@ -21,7 +21,7 @@ export default function LoginPage() {
     
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:4000/api/auth/login", { 
+      const res = await fetch("http://localhost:3000/api/auth/login", { 
         method:"POST",
         credentials: "include",
         headers:{"Content-Type": "Application/json"},
@@ -43,11 +43,11 @@ export default function LoginPage() {
   };
 
   const handleGoogle = () => {
-  window.location.href = "http://localhost:4000/api/auth/google";
+  window.location.href = "http://localhost:3000/api/auth/google";
 };
 
   const handleFacebook = () => {
-    window.location.href = "http://localhost:4000/api/auth/facebook";
+    window.location.href = "http://localhost:3000/api/auth/facebook";
   };
 
   return (
