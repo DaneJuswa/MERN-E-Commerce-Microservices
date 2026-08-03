@@ -1,5 +1,4 @@
 
-console.log("AUTH_SERVICE =", process.env.AUTH_SERVICE);
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import cors from "cors"

@@ -36,15 +36,24 @@ export const authMeProxy = createProxyMiddleware({
     }
 });
 
+
+//PRODUCTS 
+export const productProxy = createProxyMiddleware({
+    target: process.env.PRODUCT_SERVICE!,
+    changeOrigin: true,
+    pathRewrite: {
+        "^/": "/api/products/"
+    }
+})
+
+
+
 export const orderProxy = createProxyMiddleware({
     target: process.env.ORDER_SERVICE!,
     changeOrigin: true
 })
 
-export const productProxy = createProxyMiddleware({
-    target: process.env.PRODUCT_SERVICE!,
-    changeOrigin: true
-})
+
 
 export const paymentProxy = createProxyMiddleware({
     target: process.env.PAYMENT_SERVICE!,
