@@ -32,7 +32,7 @@ const CategorySchema = new Schema<ICategory>(
         }
 )
 // Prevent duplicate category names
-CategorySchema.index({name: 1})
+// CategorySchema.index({name: 1})
 
 
 export const Category = mongoose.model<ICategory>("Category", CategorySchema)

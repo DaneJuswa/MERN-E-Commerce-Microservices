@@ -32,10 +32,10 @@ export const createProductSchema = z.object({
     price: 
         z.number()
         .nonnegative(),
-    currency: 
+   currency: 
         z.string()
         .length(3)
-        .optional(),
+        .default("PHP"),
     sku: 
         z.string()
         .trim()
@@ -73,3 +73,7 @@ export const createProductSchema = z.object({
 
 // For PATCH /products/:id — everything optional, still no sellerId allowed
 export const updateProductSchema = createProductSchema.partial();
+
+
+//Validator
+export type CreateProductPayload = z.infer<typeof createProductSchema>

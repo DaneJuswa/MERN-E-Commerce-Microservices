@@ -13,12 +13,7 @@ export const createProducts = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Missing user identity" });
         }
 
-        // Validate req.body against a schema here (zod/joi/etc.)
-        // before trusting any of its fields.
-        const created = await services.createProducts({
-            payload: { ...req.body },
-            sellerID,
-        });
+        const created = await services.createProducts(req.body, sellerID);
 
         return res.status(201).json(created);
     } catch (error) {
