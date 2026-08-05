@@ -63,7 +63,7 @@ export interface IProduct extends Document {
     ratingsAverage: number;
     ratingsCount: number;
     // Auth Service User ID
-    sellerId: string;
+    sellerID: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -177,7 +177,7 @@ const ProductSchema = new Schema<IProduct>(
             min: 0,
         },
         // Comes from API Gateway (x-user-id)
-        sellerId: {
+        sellerID: {
             type: String,
             required: true,
             index: true,
