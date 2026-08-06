@@ -1,8 +1,19 @@
 import type{ Request, Response } from "express"
 import * as services from "../services/productServices.js"
 
-export const getProducts = (req: Request, res: Response) => {
+//get all products no filter
+export const getProducts = async (req: Request, res: Response) => {
+    try {
+        const products = await services.getProducts()
 
+        if(!products){
+            console.log("Error Fetching Products")
+        }
+
+        res.status(201).json({status: "successful", data: products })
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 export const createProducts = async (req: Request, res: Response) => {
@@ -13,7 +24,7 @@ export const createProducts = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Missing user identity" });
         }
 
-        const created = await services.createProducts(req.body, sellerID);
+        const created = await services.createProducts(sellerID, req.body);
 
         return res.status(201).json(created);
     } catch (error) {

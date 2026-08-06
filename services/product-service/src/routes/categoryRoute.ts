@@ -1,12 +1,13 @@
 import { Router } from "express";
 import * as categoryController from "../controllers/categoryController.js"
-
+import { validate } from "../middleware/validatePayload.js";
+import { createCategorySchema } from "../schemas/categorySchemas.js";
 
 const route = Router()
 
 
 //create a category
-route.post("/", categoryController.createCategory)
+route.post("/" , validate(createCategorySchema),  categoryController.createCategory)
 
 //get category
 route.get("/", categoryController.getCategories)

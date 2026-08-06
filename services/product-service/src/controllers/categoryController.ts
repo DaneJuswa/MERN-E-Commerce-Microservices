@@ -7,7 +7,7 @@ import { ZodError } from "zod";
 //POST category
 export const createCategory = async (req: Request, res: Response) => {
     try {
-        const payload = createCategorySchema.parse(req.body)
+        const payload = req.body
         const category = cServices.createCategory(payload)
 
         return res.status(201).json({ success: true, data: category })

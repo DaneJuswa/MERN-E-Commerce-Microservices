@@ -84,6 +84,13 @@ const ProductSchema = new Schema<IProduct>(
             lowercase: true,
             trim: true,
             index: true,
+            default: function (this: IProduct) {
+                return this.name
+                    .toLowerCase()
+                    .trim()
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/(^-|-$)/g, "");
+            },
         },
 
         description: {
