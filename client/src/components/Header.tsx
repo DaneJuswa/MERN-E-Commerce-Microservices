@@ -1,4 +1,16 @@
 import { Search, ShoppingBag } from "lucide-react";
+import type { Category } from "../types/categories";
+import { getCategoryMeta } from "../shared/categories";
+
+interface HeaderProps {
+  categories: Category[];
+  activeCategory: string;
+  onCategoryChange: (category: string) => void;
+  query: string;
+  onQueryChange: (value: string) => void;
+  cartCount: number;
+  onOpenCart: () => void;
+}
 
 export default function Header({
   categories,
@@ -8,7 +20,7 @@ export default function Header({
   onQueryChange,
   cartCount,
   onOpenCart,
-}) {
+}: HeaderProps) {
   return (
     <header className="bg-ink sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-5 py-4 flex items-center gap-6">
@@ -53,16 +65,21 @@ export default function Header({
 
       <div className="max-w-6xl mx-auto px-5 pb-3 flex gap-2 overflow-x-auto">
         {categories.map((cat) => {
-          const active = cat === activeCategory;
+          const active = cat.category === activeCategory;
+          const { icon: Icon, color } = getCategoryMeta(cat.category);
+
           return (
             <button
-              key={cat}
-              onClick={() => onCategoryChange(cat)}
-              className={`font-display text-xs tracking-wide px-3 py-1.5 rounded-full whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
-                active ? "bg-white text-green-900" : "text-white/75 border border-white/25"
+              key={cat._id}
+              onClick={() => onCategoryChange(cat.category)}
+              className={`flex gap-2 font-display text-xs tracking-wide px-3 py-1.5 rounded-full whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                active
+                  ? "bg-white text-green-900"
+                  : "text-white/75 border border-white/25"
               }`}
             >
-              {cat.toUpperCase()}
+              <Icon size={16} color={color} />
+              {cat.category.toUpperCase()}
             </button>
           );
         })}

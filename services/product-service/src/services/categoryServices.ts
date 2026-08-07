@@ -1,10 +1,11 @@
 import type { CreateCategoryPayload, UpdateCategoryPayload } from "../schemas/categorySchemas.js"
 import { Category } from "../models/Category.js"
 
+
 export const createCategory = async (payload: CreateCategoryPayload) => {
     try {
         const categoryExist = await Category.findOne({
-            name: { $regex: `^${payload.name}$`, $options: "i" },
+            name: { $regex: `^${payload.category}$`, $options: "i" },
         }) 
 
         if(categoryExist){
@@ -22,7 +23,17 @@ export const createCategory = async (payload: CreateCategoryPayload) => {
 
 
 export const getCategories = async () => {
+    try {
+        const brand = await Category.find()
 
+        if(!brand){
+            console.log("Cannot Get Brands")
+        }
+
+        return brand
+    } catch (error) {
+        console.log("Error fetching brands")
+    }
 }
 
 

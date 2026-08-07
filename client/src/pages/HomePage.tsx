@@ -12,6 +12,9 @@ import ConfirmedView from "../components/ConfirmedView";
 import type { Product, Order, ID, ApiResponse } from "../types";
 import type{ OrderPayload } from "../types/orderPayload";
 
+
+import { useCategories } from "../apis/fetchCategroies";
+
 // Local checkout contact + shipping form.
 // NOTE: doesn't reuse `Address` directly because it bundles `email`
 // (contact info) with shipping fields. Split into Address + contactEmail
@@ -46,6 +49,8 @@ interface PlaceOrderResult  {
 }
 
 export default function HomePage() {
+  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [query, setQuery] = useState("");
@@ -75,8 +80,10 @@ useEffect(() => {
 }, []);
 
 
-  const categories = ["All", ...Object.keys(CATEGORY_META)];
+  const { categories } = useCategories();
+  
   //function that triggers when a filter is clicked
+
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchesCat = activeCategory === "All" || p.category === activeCategory;

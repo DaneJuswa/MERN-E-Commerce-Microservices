@@ -1,7 +1,12 @@
 
 import { useState, useEffect } from "react"
 import type { Category } from "../types/categories"
-const API_BASE = "http://localhost:4001/"
+const API_BASE = "http://localhost:4001";
+
+interface CategoriesResponse {
+    success: boolean;
+    data: Category[];
+}
 
 export function useCategories() {
     const [categories, setCategories] = useState<Category[]>([])
@@ -13,19 +18,22 @@ export function useCategories() {
 
         async function fetchCategories() {
             try {
-                const res = await fetch(`${API_BASE}/api/categories`);
+                const res = await fetch(`http://localhost:4001/api/categories/`);
 
                 if (!res.ok) {
-                    console.log("Error fetching categories")
+                    throw new Error("Error fetching categories");
                 }
 
-                const data: Category[] = await res.json()
+                const Brands: CategoriesResponse = await res.json()
 
-                if (!cancelled) setCategories(data);
+                if (!cancelled) {
+                    setCategories(Brands.data);
+                }
+
             } catch (error) {
                 if (!cancelled) {
-                    console.log("Error")
-                    setError("Failed to fetch")
+                    console.error(error);
+                    setError("Failed to fetch");
                 }
             } finally {
                 if (!cancelled) setLoading(false);
@@ -39,5 +47,5 @@ export function useCategories() {
     }, [])
 
 
-    return { categories, loading, error }
+    return { categories }
 }
