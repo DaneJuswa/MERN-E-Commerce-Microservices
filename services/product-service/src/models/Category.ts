@@ -2,7 +2,7 @@ import mongoose, {Schema, Document, mongo} from "mongoose";
 
 export interface ICategory extends Document {
     name: string;
-    description?: string;
+    description: string;
     image?: string;
 
     createdAt:Date;
