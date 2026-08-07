@@ -4,10 +4,10 @@ import { Link, useNavigate } from "react-router-dom";
 import {Mail, Lock, Eye, EyeOff, Loader2, ShoppingBag,} from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
-// import { useCategories } from "../apis/fetchCategroies";
+import { useCategories } from "../apis/fetchCategroies";
 
 export default function LoginPage() {
-  // const { categories, loadings, error } = useCategories();
+  const { categories } = useCategories();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -22,8 +22,7 @@ export default function LoginPage() {
     
     try {
       setLoading(true);
-    
-      // {categories.map((category) => {console.log(category.name)})}
+      
 
       const res = await fetch("http://localhost:3000/api/auth/login", { 
         method:"POST",

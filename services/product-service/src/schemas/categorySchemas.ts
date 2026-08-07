@@ -2,7 +2,7 @@ import z from "zod";
 
 
 export const createCategorySchema  = z.object({
-    name: 
+    category: 
         z.string()
         .trim()
         .min(1, "Name is required")

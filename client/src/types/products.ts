@@ -1,14 +1,9 @@
-export type ProductsCategory = 
- | "Mens" 
- | "Womens" 
- | "Clothing"
- | "Appliances" 
-  | "Electronics";
+// import type{ Category } from "./categories"
 
   export type Products = {
     id: number,
     name: string,
-    category : ProductsCategory,
+    category : string,
     price: number,
     blurb: string
   }
