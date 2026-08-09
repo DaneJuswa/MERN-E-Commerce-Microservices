@@ -1,14 +1,64 @@
 
-import type { Product } from "../types/product";
-export const API_BASE = ""; // e.g. "http://localhost:4000/api"
+import { useEffect, useState } from "react";
+import type { ProductCard } from "../types/products";
 
-export async function fetchProducts(): Promise<Product[]> {
-  // const res = await fetch(`${API_BASE}/products`);
-  // if (!res.ok) throw new Error("Failed to load products");
-  // return res.json();
-  await new Promise((r) => setTimeout(r, 350));
-  return MOCK_PRODUCTS;
+
+export const API_BASE = "http://localhost:4000/";
+
+// export async function fetchProducts(): Promise<Product[]> {
+//   // // const res = await fetch(`${API_BASE}/products`);
+//   // // if (!res.ok) throw new Error("Failed to load products");
+//   // // return res.json();
+//   // await new Promise((r) => setTimeout(r, 350));
+//   // return MOCK_PRODUCTS;
+// }
+
+interface ProductResponse{
+  success: boolean,
+  data: ProductCard[]
 }
+
+export const useProducts = () => {
+  const [products, setProducts] = useState<ProductCard[]>([])
+   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function fetchProducts() {
+      try {
+        const res = await fetch(`http://localhost:4001/api/products/`);
+
+        if(!res.ok){
+          throw new Error("Error Fetching Products")
+        }
+
+        const Product: ProductResponse = await res.json()
+
+        if(!cancelled){
+          setProducts(Product.data)
+        }
+      } catch (error) {
+         if (!cancelled) {
+                    console.error(error);
+                    setError("Failed to fetch");
+                }
+      }finally{
+          setLoading(false)
+      }
+    }
+
+    fetchProducts()
+     return () => {
+            cancelled = true;
+        };
+        
+  }, [])
+
+  return {products, loading}
+}
+
 
 
 
@@ -21,7 +71,7 @@ export const MOCK_PRODUCTS = [
   { id: "p6", name: "Folding Utility Knife", category: "Appliances", price: 22, blurb: "Locks open, locks closed, replaceable blade." },
   { id: "p7", name: "Stoneware Mug", category: "Appliances", price: 24, blurb: "Holds heat, holds its shape, stacks in the cupboard." },
   { id: "p8", name: "Cast Iron Trivet", category: "Appliancesome", price: 19, blurb: "Heavy enough to matter, small enough to store." },
-   
+
 ];
 
 export function money(n) {

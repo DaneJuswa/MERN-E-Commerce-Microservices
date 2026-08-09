@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
-import { fetchProducts} from "../apis/fetchproducts";
+// import { fetchProducts, useProducts} from "../apis/fetchproducts";
 import { placeOrder } from "../apis/placeOrder";
 
-import {CATEGORY_META} from "../shared/categories"
 import Header from "../components/Header";
 import ProductGrid from "../components/ProductGrid";
 import ProductModal from "../components/ProductModal";
@@ -10,11 +9,10 @@ import CartDrawer from "../components/CartDrawer";
 import CheckoutView from "../components/CheckoutView";
 import ConfirmedView from "../components/ConfirmedView";
 import type { Product, Order, ID, ApiResponse } from "../types";
-import type{ OrderPayload } from "../types/orderPayload";
-
+import type { OrderPayload } from "../types/orderPayload";
 
 import { useCategories } from "../apis/fetchCategroies";
-
+import { useProducts } from "../apis/fetchproducts";
 // Local checkout contact + shipping form.
 // NOTE: doesn't reuse `Address` directly because it bundles `email`
 // (contact info) with shipping fields. Split into Address + contactEmail
@@ -28,7 +26,14 @@ interface CheckoutForm {
   paymentMethod: "COD" | "GCash" | "Card";
 }
 
-const EMPTY_FORM: CheckoutForm = { name: "", email: "", address: "", city: "", zip: "",   paymentMethod: "COD" };
+const EMPTY_FORM: CheckoutForm = {
+  name: "",
+  email: "",
+  address: "",
+  city: "",
+  zip: "",
+  paymentMethod: "COD",
+};
 
 // Local pre-checkout cart state: productId -> quantity.
 // Intentionally NOT the `Cart`/`Order` type from types.ts — that type
@@ -38,20 +43,17 @@ type CartMap = Record<ID, number>;
 
 type ViewState = "shop" | "checkout" | "confirmed";
 
-
 type CartLineItem = Product & {
   qty: number;
-}
+};
 
 // Swap this for ApiResponse<Order> once placeOrder hits a real backend.
-interface PlaceOrderResult  {
+interface PlaceOrderResult {
   orderId: ID;
 }
 
 export default function HomePage() {
-  
-
-  const [products, setProducts] = useState<Product[]>([]);
+  // const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -63,30 +65,31 @@ export default function HomePage() {
   const [orderId, setOrderId] = useState<ID | null>(null);
   const [form, setForm] = useState<CheckoutForm>(EMPTY_FORM);
 
-//fetchs products via api folder
-useEffect(() => {
-  async function loadProducts() {
-    try {
-      const data: Product[] = await fetchProducts();
-      setProducts(data);
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    } finally {
-      setLoadingProducts(false);
-    }
-  }
+  //fetchs products via api folder
+  // useEffect(() => {
+  //   async function loadProducts() {
+  //     try {
+  //       const data: Product[] = await fetchProducts();
+  //       setProducts(data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch products:", error);
+  //     } finally {
+  //       setLoadingProducts(false);
+  //     }
+  //   }
 
-  loadProducts();
-}, []);
+  //   loadProducts();
+  // }, []);
 
-
+  const { products, loading } = useProducts();
   const { categories } = useCategories();
-  
+
   //function that triggers when a filter is clicked
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
-      const matchesCat = activeCategory === "All" || p.category === activeCategory;
+      const matchesCat =
+        activeCategory === "All" || p.category?.category === activeCategory;
       const matchesQuery = p.name.toLowerCase().includes(query.toLowerCase());
       return matchesCat && matchesQuery;
     });
@@ -126,31 +129,31 @@ useEffect(() => {
     setPlacing(true);
     try {
       const orderPayload: OrderPayload = {
-      items: cartItems.map(item => ({
-        productId: item.id,
-        name: item.name,
-        quantity: item.qty,
-        price: item.price,
-      })),
-      customer: {
-        name: form.name,
-        email: form.email,
-      },
-      shippingAddress: {
-        street: form.address,
-        city: form.city,
-        zip: form.zip,
-      },
-      paymentMethod: form.paymentMethod,
-      totalAmount: total,
-    };
+        items: cartItems.map((item) => ({
+          productId: item.id,
+          name: item.name,
+          quantity: item.qty,
+          price: item.price,
+        })),
+        customer: {
+          name: form.name,
+          email: form.email,
+        },
+        shippingAddress: {
+          street: form.address,
+          city: form.city,
+          zip: form.zip,
+        },
+        paymentMethod: form.paymentMethod,
+        totalAmount: total,
+      };
 
-    //the result of placing an order
-    const result: PlaceOrderResult  = await placeOrder(orderPayload);
+      //the result of placing an order
+      const result: PlaceOrderResult = await placeOrder(orderPayload);
 
-    setOrderId(result.orderId);
-    setView("confirmed");
-    setCart({});
+      setOrderId(result.orderId);
+      setView("confirmed");
+      setCart({});
     } catch (err) {
       alert("Something went wrong placing the order. Try again.");
     } finally {
@@ -172,7 +175,11 @@ useEffect(() => {
 
       {view === "shop" && (
         <main className="max-w-6xl mx-auto px-5 py-8">
-          <ProductGrid products={filtered} loading={loadingProducts} onSelect={setSelected} />
+          <ProductGrid
+            products={filtered}
+            loading={loading}
+            onSelect={setSelected}
+          />
         </main>
       )}
 
@@ -201,14 +208,16 @@ useEffect(() => {
         />
       )}
 
-      <ProductModal
-        product={selected}
-        onClose={() => setSelected(null)}
-        onAddToCart={(product: Product, qty: number) => {
-          addToCart(product, qty);
-          setSelected(null);
-        }}
-      />
+      {selected && (
+        <ProductModal
+          product={selected}
+          onClose={() => setSelected(null)}
+          onAddToCart={(product: Product, qty: number) => {
+            addToCart(product, qty);
+            setSelected(null);
+          }}
+        />
+      )}
 
       <CartDrawer
         open={drawerOpen}
