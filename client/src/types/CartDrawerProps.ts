@@ -1,17 +1,17 @@
-export type CartItem =  {
+export type CartItems =  {
   id: string;
   name: string;
   price: number;
   qty: number;
 }
 
-export type CartDrawerProps = {
+interface CartDrawerProps {
   open: boolean;
   onClose: () => void;
-  cartItems: CartItem[];
+  cartItems: CartItems[];
   subtotal: number;
   shipping: number;
   total: number;
-  onSetQty: (id: string, qty: number) => void;
+  onSetQty: (cartItemId: string, quantity: number) => void;
   onCheckout: () => void;
 }

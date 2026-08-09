@@ -49,7 +49,7 @@ export const addToCart = async (req: Request, res: Response) => {
 export const getCart = async (req: Request, res: Response) => {
     try {
         const userId = req.headers["x-user-id"] as string;
-        
+        console.log(userId)
         const cart = await cartService.getCart(userId)
 
         res.status(200).json(cart)

@@ -1,7 +1,7 @@
 import Cart from "../model/cartModel.js"
 import { fetchProductsByIds, type ProductResponse } from "./product-client.js";
 
-
+//each items in cart
 export interface CartItemResponse {
     cartItemId: string;
     productID: string;
@@ -38,7 +38,7 @@ export const getCart = async (userID: string): Promise<cartResponse> => {
             userID,
             items: [],
             summary: { totalItems: 0, subtotal: 0, currency: "PHP" },
-            message: "failed to fetch cart"
+            message: "No items in the cart yet!"
         };
     }
 
@@ -67,7 +67,7 @@ export const getCart = async (userID: string): Promise<cartResponse> => {
         const variant = product?.variants?.find((v) => v._id === item.variantID);
 
         const price = variant?.price ?? product?.price ?? 0;
-        const stockRemaining = variant?.stock ?? product?.stock ?? 0;
+        const stockRemaining = product?.stock ?? 0
 
         return {
             cartItemId: item._id.toString(),

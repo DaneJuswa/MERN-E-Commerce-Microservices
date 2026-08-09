@@ -13,6 +13,9 @@ import type { OrderPayload } from "../types/orderPayload";
 
 import { useCategories } from "../apis/fetchCategroies";
 import { useProducts } from "../apis/fetchproducts";
+
+import { getCart, type CartReceive } from "../apis/fetchCart";
+
 // Local checkout contact + shipping form.
 // NOTE: doesn't reuse `Address` directly because it bundles `email`
 // (contact info) with shipping fields. Split into Address + contactEmail
@@ -43,9 +46,17 @@ type CartMap = Record<ID, number>;
 
 type ViewState = "shop" | "checkout" | "confirmed";
 
-type CartLineItem = Product & {
-  qty: number;
-};
+export interface CartLineItem {
+  cartItemId: string;
+  productID: string;
+  variantID?: string;
+  name: string;
+  quantity: number;
+  price: number;
+  lineTotal: number;
+  inStock: boolean;
+  stockRemaining: number;
+}
 
 // Swap this for ApiResponse<Order> once placeOrder hits a real backend.
 interface PlaceOrderResult {
@@ -57,29 +68,13 @@ export default function HomePage() {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
-  const [cart, setCart] = useState<CartMap>({});
+  const [cart, setCart] = useState<CartReceive | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selected, setSelected] = useState<Product | null>(null);
   const [view, setView] = useState<ViewState>("shop");
   const [placing, setPlacing] = useState(false);
   const [orderId, setOrderId] = useState<ID | null>(null);
   const [form, setForm] = useState<CheckoutForm>(EMPTY_FORM);
-
-  //fetchs products via api folder
-  // useEffect(() => {
-  //   async function loadProducts() {
-  //     try {
-  //       const data: Product[] = await fetchProducts();
-  //       setProducts(data);
-  //     } catch (error) {
-  //       console.error("Failed to fetch products:", error);
-  //     } finally {
-  //       setLoadingProducts(false);
-  //     }
-  //   }
-
-  //   loadProducts();
-  // }, []);
 
   const { products, loading } = useProducts();
   const { categories } = useCategories();
@@ -95,17 +90,24 @@ export default function HomePage() {
     });
   }, [products, activeCategory, query]);
 
-  const cartItems: CartLineItem[] = useMemo(() => {
-    return Object.entries(cart)
-      .map(([id, qty]) => {
-        const product = products.find((p) => p.id === id);
-        return product ? { ...product, qty } : null;
-      })
-      .filter((item): item is CartLineItem => item !== null);
-  }, [cart, products]);
+  useEffect(() => {
+    const loadCart = async () => {
+      try {
+        const data = await getCart();
+        setCart(data);
+      } catch (error) {
+        console.error("Failed to load cart:", error);
+      }
+    };
 
-  const cartCount = cartItems.reduce((sum, i) => sum + i.qty, 0);
-  const subtotal = cartItems.reduce((sum, i) => sum + i.qty * i.price, 0);
+    loadCart();
+  }, []);
+
+  const cartItems = cart?.items ?? [];
+
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const subtotal = cartItems.reduce((sum, item) => sum + item.lineTotal, 0);
   const shipping = subtotal > 0 && subtotal < 75 ? 6 : 0;
   const total = subtotal + shipping;
 
@@ -123,43 +125,53 @@ export default function HomePage() {
     });
   }
 
-  //fumction for submitting a form (order)
-  async function handlePlaceOrder(e: React.FormEvent) {
-    e.preventDefault();
-    setPlacing(true);
-    try {
-      const orderPayload: OrderPayload = {
-        items: cartItems.map((item) => ({
-          productId: item.id,
-          name: item.name,
-          quantity: item.qty,
-          price: item.price,
-        })),
-        customer: {
-          name: form.name,
-          email: form.email,
-        },
-        shippingAddress: {
-          street: form.address,
-          city: form.city,
-          zip: form.zip,
-        },
-        paymentMethod: form.paymentMethod,
-        totalAmount: total,
-      };
+  // //fumction for submitting a form (order)
+  // async function handlePlaceOrder(e: React.FormEvent) {
+  //   e.preventDefault();
+  //   setPlacing(true);
+  //   try {
+  //     const orderPayload: OrderPayload = {
+  //       items: cartItems.map((item) => ({
+  //         productId: item.id,
+  //         name: item.name,
+  //         quantity: item.qty,
+  //         price: item.price,
+  //       })),
+  //       customer: {
+  //         name: form.name,
+  //         email: form.email,
+  //       },
+  //       shippingAddress: {
+  //         street: form.address,
+  //         city: form.city,
+  //         zip: form.zip,
+  //       },
+  //       paymentMethod: form.paymentMethod,
+  //       totalAmount: total,
+  //     };
 
-      //the result of placing an order
-      const result: PlaceOrderResult = await placeOrder(orderPayload);
+  //     //the result of placing an order
+  //     const result: PlaceOrderResult = await placeOrder(orderPayload);
 
-      setOrderId(result.orderId);
-      setView("confirmed");
-      setCart({});
-    } catch (err) {
-      alert("Something went wrong placing the order. Try again.");
-    } finally {
-      setPlacing(false);
+  //     setOrderId(result.orderId);
+  //     setView("confirmed");
+  //     setCart({});
+  //   } catch (err) {
+  //     alert("Something went wrong placing the order. Try again.");
+  //   } finally {
+  //     setPlacing(false);
+  //   }
+  // }
+
+  useEffect(() => {
+    async function getCartNgani() {
+      try {
+        const res = await getCart();
+        console.log(res);
+      } catch (error) {}
     }
-  }
+    getCartNgani();
+  }, []);
 
   return (
     <div className="min-h-full font-sans">

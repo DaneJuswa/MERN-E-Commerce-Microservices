@@ -46,6 +46,17 @@ export const productProxy = createProxyMiddleware({
     }
 })
 
+export const CartProxy = createProxyMiddleware({
+    target: process.env.CART_SERVICE!,
+    changeOrigin: true,
+    pathRewrite: {
+        "^/": "/api/cart"
+    },
+    on:{
+        proxyReq: forwardUserHeaders
+    }
+})
+
 
 
 export const orderProxy = createProxyMiddleware({

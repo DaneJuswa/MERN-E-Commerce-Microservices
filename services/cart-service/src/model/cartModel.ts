@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface ICartItem {
     _id: Types.ObjectId;
     productID: string;
-    variantID: string;
+    variantID?: string;
     quantity: number
 }
 
@@ -22,7 +22,7 @@ const cartItemSchema = new Schema<ICartItem>({
     },
     variantID: {
         type: String,
-        required: true
+        required: false
     },
     quantity: {
         type: Number,
