@@ -33,7 +33,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
         console.log(req.user)
 
 
-        // 2. 🚨 ATTACH TO HEADERS so http-proxy-middleware can forward them downstream
+        // ATTACH TO HEADERS so http-proxy-middleware can forward them downstream
         req.headers["x-user-id"] = decoded.id;
         req.headers["x-user-email"] = decoded.email;
         req.headers["x-user-payload"] = JSON.stringify(decoded);

@@ -130,7 +130,7 @@ const ProductSchema = new Schema<IProduct>(
 
         brand: {
             type: Schema.Types.ObjectId,
-            ref: "Brand",
+            ref: "Brands",
             required: true,
             index: true,
         },

@@ -4,6 +4,8 @@ import { Product } from "../models/Products.js"
 export const getProducts = async () => {
     try {
         const products = await Product.find()
+        .populate("category", "category")
+        .populate("brand", "name")
         return products
     } catch (error) {
         console.log(error)

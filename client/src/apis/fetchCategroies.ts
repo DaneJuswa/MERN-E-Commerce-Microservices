@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from "react"
 import type { Category } from "../types/categories"
+
 const API_BASE = "http://localhost:4001";
 
 interface CategoriesResponse {
