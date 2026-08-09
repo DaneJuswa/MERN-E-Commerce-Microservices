@@ -39,7 +39,6 @@ const VariantSchema = new Schema<IVariant>(
         images: [{ type: String }],
     },
     {
-        _id: false,
     }
 );
 

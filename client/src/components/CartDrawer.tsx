@@ -3,6 +3,21 @@ import { X, Plus, Minus } from "lucide-react";
 import ProductTile from "./ProductTile.js";
 import { money } from "../apis/fetchproducts.js";
 
+
+export interface ItemsOnCart {
+    cartItemId: string;
+    productID: string;
+    variantID?: string;      // made optional — not every item has a variant
+    name: string;
+    image?: string;
+    variantLabel?: string;
+    quantity: number;
+    price: number;
+    lineTotal: number;
+    inStock: boolean;
+    stockRemaining: number
+}
+
 export default function CartDrawer({
   open,
   onClose,
@@ -15,6 +30,9 @@ export default function CartDrawer({
 }: CartDrawerProps) {
   if (!open) return null;
 
+  console.log("test")
+  cartItems.map((items: any) => console.log(items))
+   console.log("test")
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
@@ -45,36 +63,36 @@ export default function CartDrawer({
           ) : (
             <div className="divide-y divide-line">
               {cartItems.map((item) => (
-                <div key={item.id} className="py-4 flex gap-3">
+                <div key={item.productID} className="py-4 flex gap-3">
                   <ProductTile product={item} size="small" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug">{item.name}</p>
                     <p className="font-mono text-xs text-black/50 mt-0.5">{money(item.price)} each</p>
                     <div className="flex items-center gap-2 mt-2">
                       <button
-                        onClick={() => onSetQty(item.id, item.qty - 1)}
+                        onClick={() => onSetQty(item.productID, item.quantity - 1)}
                         className="h-6 w-6 rounded-full flex items-center justify-center border border-line focus:outline-none focus-visible:ring-2"
                         aria-label="Decrease quantity"
                       >
                         <Minus size={12} />
                       </button>
-                      <span className="font-mono text-sm w-4 text-center">{item.qty}</span>
+                      <span className="font-mono text-sm w-4 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => onSetQty(item.id, item.qty + 1)}
+                        onClick={() => onSetQty(item.productID, item.quantity + 1)}
                         className="h-6 w-6 rounded-full flex items-center justify-center border border-line focus:outline-none focus-visible:ring-2"
                         aria-label="Increase quantity"
                       >
                         <Plus size={12} />
                       </button>
                       <button
-                        onClick={() => onSetQty(item.id, 0)}
+                        onClick={() => onSetQty(item.productID, 0)}
                         className="ml-auto text-xs font-mono text-black/40 hover:text-rust focus:outline-none"
                       >
                         REMOVE
                       </button>
                     </div>
                   </div>
-                  <span className="font-mono text-sm">{money(item.qty * item.price)}</span>
+                  <span className="font-mono text-sm">{money(item.quantity * item.price)}</span>
                 </div>
               ))}
             </div>
