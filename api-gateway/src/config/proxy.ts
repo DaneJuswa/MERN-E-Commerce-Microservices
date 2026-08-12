@@ -1,4 +1,7 @@
-import { createProxyMiddleware } from "http-proxy-middleware";
+import {
+    createProxyMiddleware,
+    fixRequestBody
+} from "http-proxy-middleware";
 import dotenv from "dotenv"
 dotenv.config()
 
@@ -10,6 +13,7 @@ const forwardUserHeaders = (proxyReq: any, req: any) => {
     if (req.headers["x-user-email"]) {
         proxyReq.setHeader("x-user-email", req.headers["x-user-email"] as string);
     }
+    fixRequestBody(proxyReq, req);
 };
 
 // Public auth routes (register, login, etc.) — req.url still has a segment after "/auth"
@@ -46,16 +50,19 @@ export const productProxy = createProxyMiddleware({
     }
 })
 
+
 export const CartProxy = createProxyMiddleware({
     target: process.env.CART_SERVICE!,
     changeOrigin: true,
+
     pathRewrite: {
-        "^/": "/api/cart"
+        "^/": "/api/cart/",
     },
-    on:{
-        proxyReq: forwardUserHeaders
-    }
-})
+
+    on: {
+       proxyReq: forwardUserHeaders
+    },
+});
 
 
 

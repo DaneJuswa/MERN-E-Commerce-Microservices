@@ -14,7 +14,9 @@ import type { OrderPayload } from "../types/orderPayload";
 import { useCategories } from "../apis/fetchCategroies";
 import { useProducts } from "../apis/fetchproducts";
 
-import { getCart, type CartReceive } from "../apis/fetchCart";
+import { getCart, updateCartItem, type CartReceive } from "../apis/fetchCart";
+
+import { addToCartAPI } from "../apis/fetchCart";
 
 // Local checkout contact + shipping form.
 // NOTE: doesn't reuse `Address` directly because it bundles `email`
@@ -111,18 +113,43 @@ export default function HomePage() {
   const shipping = subtotal > 0 && subtotal < 75 ? 6 : 0;
   const total = subtotal + shipping;
 
-  function addToCart(product: Product, qty: number = 1) {
-    setCart((c) => ({ ...c, [product.id]: (c[product.id] || 0) + qty }));
-    setDrawerOpen(true);
+  //calls addtocart api
+  async function addToCart(
+    product: Product,
+    qty: number = 1,
+    variantID?: string,
+  ) {
+    console.log("ADD TO CART FUNCTION CALLED");
+    console.log("product:", product);
+    console.log("qty:", qty);
+    console.log("variantID:", variantID);
+
+    try {
+      console.log("CALLING API...");
+
+      const result = await addToCartAPI(product.id, qty, variantID);
+
+      console.log("ADDED SUCCESSFULLY:", result);
+
+      const updatedCart = await getCart();
+      setCart(updatedCart);
+
+      setDrawerOpen(true);
+    } catch (error) {
+      console.error("ADD TO CART ERROR:", error);
+    }
   }
 
-  function setQty(id: ID, qty: number) {
-    setCart((c) => {
-      const next = { ...c };
-      if (qty <= 0) delete next[id];
-      else next[id] = qty;
-      return next;
-    });
+  async function setQty(cartItemId: string, qty: number) {
+    try {
+      await updateCartItem(cartItemId, qty);
+
+      const updatedCart = await getCart();
+
+      setCart(updatedCart);
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+    }
   }
 
   // //fumction for submitting a form (order)
