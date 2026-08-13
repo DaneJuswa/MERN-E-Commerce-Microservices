@@ -63,14 +63,14 @@ export default function CartDrawer({
           ) : (
             <div className="divide-y divide-line">
               {cartItems.map((item) => (
-                <div key={item.productID} className="py-4 flex gap-3">
+                <div key={item.cartItemId} className="py-4 flex gap-3">
                   <ProductTile product={item} size="small" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium leading-snug">{item.name}</p>
                     <p className="font-mono text-xs text-black/50 mt-0.5">{money(item.price)} each</p>
                     <div className="flex items-center gap-2 mt-2">
                       <button
-                        onClick={() => onSetQty(item.productID, item.quantity - 1)}
+                        onClick={() => onSetQty(item.cartItemId, item.quantity - 1)}
                         className="h-6 w-6 rounded-full flex items-center justify-center border border-line focus:outline-none focus-visible:ring-2"
                         aria-label="Decrease quantity"
                       >
@@ -78,14 +78,14 @@ export default function CartDrawer({
                       </button>
                       <span className="font-mono text-sm w-4 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => onSetQty(item.productID, item.quantity + 1)}
+                        onClick={() => onSetQty(item.cartItemId, item.quantity + 1)}
                         className="h-6 w-6 rounded-full flex items-center justify-center border border-line focus:outline-none focus-visible:ring-2"
                         aria-label="Increase quantity"
                       >
                         <Plus size={12} />
                       </button>
                       <button
-                        onClick={() => onSetQty(item.productID, 0)}
+                        onClick={() => onSetQty(item.cartItemId, 0)}
                         className="ml-auto text-xs font-mono text-black/40 hover:text-rust focus:outline-none"
                       >
                         REMOVE
