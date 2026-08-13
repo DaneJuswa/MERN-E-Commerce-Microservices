@@ -92,6 +92,7 @@ export const updateCartItem = async (
     cartItemId: string,
     quantity: number
 ) => {
+    console.log("add ngani")
     const response = await fetch(
         `${API_BASE}/api/cart/${cartItemId}`,
         {
@@ -105,7 +106,7 @@ export const updateCartItem = async (
             }),
         }
     );
-
+    console.log("umabot ba ya")
     const data = await response.json();
 
     if (!response.ok) {

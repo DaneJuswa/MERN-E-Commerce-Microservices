@@ -1,6 +1,6 @@
 import type{ Request, Response } from "express"
 import * as cartService from "../services/cartService.js"
-
+import Cart from "../model/cartModel.js";
 //add to Cart
 export const addToCart = async (req: Request, res: Response) => {
   const userID = req.headers["x-user-id"] as string;
@@ -60,8 +60,47 @@ export const getCart = async (req: Request, res: Response) => {
 
 //update item in cart
 export const updateItem = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { quantity } = req.body;
 
-}
+    const cart = await Cart.findOne({
+      "items._id": id,
+    });
+
+    if (!cart) {
+      return res.status(404).json({
+        message: "Cart not found",
+      });
+    }
+
+    const item = cart.items.find(
+      (item) => item._id.toString() === id
+    );
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Cart item not found",
+      });
+    }
+
+    item.quantity = quantity;
+
+    await cart.save();
+
+    return res.status(200).json({
+      message: "Cart item updated",
+      item,
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Failed to update cart item",
+    });
+  }
+};
 
 //delete item in cart
 export const deleteItem = async (req: Request, res: Response) => {
