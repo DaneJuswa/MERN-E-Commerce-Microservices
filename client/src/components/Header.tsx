@@ -1,6 +1,9 @@
-import { Search, ShoppingBag } from "lucide-react";
+import { Search, ShoppingBag, LogOut } from "lucide-react";
+import { useState } from "react";
 import type { Category } from "../types/categories";
 import { getCategoryMeta } from "../shared/categories";
+import { logout } from "../apis/auth";
+
 
 interface HeaderProps {
   categories: Category[];
@@ -12,6 +15,8 @@ interface HeaderProps {
   onOpenCart: () => void;
 }
 
+
+
 export default function Header({
   categories,
   activeCategory,
@@ -21,6 +26,21 @@ export default function Header({
   cartCount,
   onOpenCart,
 }: HeaderProps) {
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      setLoggingOut(true);
+      
+      console.log("Successfully logged out");
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout error:", err);
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <header className="bg-ink sticky top-0 z-30">
       <div className="max-w-6xl mx-auto px-5 py-4 flex items-center gap-6">
@@ -38,19 +58,33 @@ export default function Header({
           />
         </div>
 
-        <button
-          onClick={onOpenCart}
-          className="relative ml-auto flex items-center gap-2 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full px-3 py-2"
-          aria-label={`Open cart, ${cartCount} items`}
-        >
-          <ShoppingBag size={20} />
-          <span className="hidden sm:inline text-sm font-medium">Cart</span>
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 text-xs font-mono font-semibold rounded-full h-5 w-5 flex items-center justify-center bg-mustard text-ink">
-              {cartCount}
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={onOpenCart}
+            className="relative flex items-center gap-2 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full px-3 py-2"
+            aria-label={`Open cart, ${cartCount} items`}
+          >
+            <ShoppingBag size={20} />
+            <span className="hidden sm:inline text-sm font-medium">Cart</span>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 text-xs font-mono font-semibold rounded-full h-5 w-5 flex items-center justify-center bg-mustard text-ink">
+                {cartCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="flex items-center gap-2 text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full px-3 py-2 disabled:opacity-50"
+            aria-label="Log out"
+          >
+            <LogOut size={20} />
+            <span className="hidden sm:inline text-sm font-medium">
+              {loggingOut ? "Logging out..." : "Logout"}
             </span>
-          )}
-        </button>
+          </button>
+        </div>
       </div>
 
       <div className="sm:hidden px-5 pb-3 flex items-center gap-2 bg-white/10 mx-5 rounded-full">

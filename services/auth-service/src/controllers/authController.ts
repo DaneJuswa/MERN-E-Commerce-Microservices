@@ -85,12 +85,12 @@ export const googleCallback = [
 
 export const facebookCallback = [
   passport.authenticate("facebook", {
-    session: false, 
+    session: false,
     failureRedirect: `${process.env.CLIENT_URL}/login?error=facebook_auth_failed`
-  }), 
+  }),
   async (req: Request, res: Response) => {
     try {
-      const profile = req.user as {id: string; emails: {value:string}[]; displayName: string}
+      const profile = req.user as { id: string; emails: { value: string }[]; displayName: string }
 
       console.log(profile.displayName)
       const result = await authService.facebookLogin({
@@ -99,7 +99,7 @@ export const facebookCallback = [
         name: profile.displayName
       })
 
-      
+
       const token = result.accessToken
 
       res.cookie("token", token, {
@@ -202,9 +202,27 @@ export const getCurrentUser = async (req: Request, res: Response) => {
     const result = await authService.getCurrentUser(userId);
 
     return res.status(200).json(result);
-  } catch (error: any) { 
+  } catch (error: any) {
     return res.status(401).json({
       message: error.message,
     });
   }
 };
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+    })
+
+    return res.status(200).json({
+      message: "Logged out successfully",
+    });
+  } catch (error: any) {
+    return res.status(401).json({
+      message: error.message,
+    });
+  }
+}
