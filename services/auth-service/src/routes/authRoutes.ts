@@ -27,4 +27,6 @@ authRoute.post("/forgot-password", auth.forgotPassword);
 authRoute.post("/reset-password/:token", auth.resetPassword);
 authRoute.get("/me",  auth.getCurrentUser);
 
+authRoute.post("/logout", auth.logout);
+
 export default authRoute;
