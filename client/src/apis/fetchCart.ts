@@ -53,10 +53,7 @@ export const addToCartAPI = async (
     variantID?: string
 ) => {
     try {
-        console.log("SENDING ADD TO CART REQUEST");
-
-        console.log("API_BASE:", API_BASE);
-        console.log("URL:", `${API_BASE}/api/cart`);
+      
         const response = await fetch(`${API_BASE}/api/cart`, {
             method: "POST",
             headers: {

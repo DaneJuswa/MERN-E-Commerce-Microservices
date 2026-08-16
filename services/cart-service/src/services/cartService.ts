@@ -1,5 +1,6 @@
 import Cart from "../model/cartModel.js"
 import { fetchProductsByIds, type ProductResponse } from "./product-client.js";
+import { checkProductStock } from "./checkStocks.js";
 
 //each items in cart
 export interface CartItemResponse {
@@ -27,6 +28,11 @@ export interface cartResponse {
     };
     message: string
 };
+
+interface StockCheckResponse {
+  available: boolean;
+  stock: number;
+}
 
 //fetch cart, every call use product service as source of truth for stocks and current price
 export const getCart = async (userID: string): Promise<cartResponse> => {
@@ -100,6 +106,11 @@ export const getCart = async (userID: string): Promise<cartResponse> => {
     }
 }
 //for adding to cart
+interface StockCheckResponse {
+  available: boolean;
+  stock: number;
+}
+
 export const addToCart = async (userID: string, productID: string, quantity: number = 1, variantID?: string) => {
     let products: ProductResponse[] = []
 
@@ -136,8 +147,24 @@ export const addToCart = async (userID: string, productID: string, quantity: num
             item.variantID === variantID
     );
 
-    if (existingItem) {
-        existingItem.quantity += quantity;
+    // total quantity the user would end up with in cart
+    const totalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
+
+    // check stock availability against the total
+    let stockCheck: StockCheckResponse;
+    try {
+        stockCheck = await checkProductStock(productID, totalQuantity);
+    } catch (error) {
+        console.error("STOCK_CHECK_ERROR:", error);
+        throw new Error("STOCK_SERVICE_UNAVAILABLE");
+    }
+
+    if (!stockCheck.available || stockCheck.stock < totalQuantity) {
+        throw new Error("INSUFFICIENT_STOCK");
+    }
+
+    if (existingItem) { 
+        existingItem.quantity = totalQuantity;
     } else {
         cart.items.push({productID, variantID, quantity,} as any);
     }

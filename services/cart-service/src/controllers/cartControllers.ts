@@ -1,6 +1,7 @@
-import type{ Request, Response } from "express"
+import type { Request, Response } from "express"
 import * as cartService from "../services/cartService.js"
 import Cart from "../model/cartModel.js";
+import { checkProductStock } from "../services/checkStocks.js";
 
 //add to Cart
 export const addToCart = async (req: Request, res: Response) => {
@@ -48,15 +49,15 @@ export const addToCart = async (req: Request, res: Response) => {
 
 //get all Carts 
 export const getCart = async (req: Request, res: Response) => {
-    try {
-        const userId = req.headers["x-user-id"] as string;
-        console.log(userId)
-        const cart = await cartService.getCart(userId)
+  try {
+    const userId = req.headers["x-user-id"] as string;
+    console.log(userId)
+    const cart = await cartService.getCart(userId)
 
-        res.status(200).json(cart)
-    } catch (error) {
-        console.log(error)
-    }
+    res.status(200).json(cart)
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 //update item in cart
@@ -83,6 +84,19 @@ export const updateItem = async (req: Request, res: Response) => {
       return res.status(404).json({
         message: "Cart item not found",
       });
+    }
+
+    if (!id || Array.isArray(id)) {
+      return res.status(400).json({
+        message: "Invalid product ID"
+      });
+    }
+    
+    //check for stock first
+    const stockCheck = await checkProductStock(item.productID, quantity)
+
+    if (!stockCheck.available || stockCheck.stock < quantity) {
+      return res.status(400).json({message:"Insufficient stocks"})
     }
 
     item.quantity = quantity;
