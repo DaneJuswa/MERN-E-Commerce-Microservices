@@ -4,13 +4,14 @@ dotenv.config()
 import { connectDB } from "./config/dbConfig.js";
 import app from "./app.js";
 
+import { connectConsumer } from "./kafka/consumer.js";
 const PORT = process.env.PORT || 4004
 
 async function startServer() {
     try {
         //await db
         connectDB()
-
+        await connectConsumer();
         app.listen(PORT, () => {
             console.log(`CART-SERVICE running on PORT ${PORT}`)
         })

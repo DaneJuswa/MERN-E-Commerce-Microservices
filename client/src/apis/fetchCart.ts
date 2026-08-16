@@ -47,6 +47,7 @@ export const getCart = async (): Promise<CartReceive> => {
 
 }
 
+//add to cart 
 export const addToCartAPI = async (
     productID: string,
     quantity: number,
@@ -84,12 +85,8 @@ export const addToCartAPI = async (
     }
 };
 
-
-export const updateCartItem = async (
-    cartItemId: string,
-    quantity: number
-) => {
-    console.log("add ngani")
+//update cart
+export const updateCartItem = async (cartItemId: string, quantity: number) => {
     const response = await fetch(
         `${API_BASE}/api/cart/${cartItemId}`,
         {

@@ -30,9 +30,9 @@ export default function CartDrawer({
 }: CartDrawerProps) {
   if (!open) return null;
 
-  console.log("test")
+
   cartItems.map((items: any) => console.log(items))
-   console.log("test")
+
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />

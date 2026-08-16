@@ -18,6 +18,8 @@ import { getCart, updateCartItem, type CartReceive } from "../apis/fetchCart";
 
 import { addToCartAPI } from "../apis/fetchCart";
 
+import toast from "react-hot-toast";
+
 // Local checkout contact + shipping form.
 // NOTE: doesn't reuse `Address` directly because it bundles `email`
 // (contact info) with shipping fields. Split into Address + contactEmail
@@ -149,6 +151,14 @@ export default function HomePage() {
       setCart(updatedCart);
     } catch (error) {
       console.error("Failed to update cart:", error);
+
+      const message = error instanceof Error ? error.message : "Something went wrong";
+
+      if (message.toLowerCase().includes("insufficient stock")) {
+        toast.error("This product is out of stock.");
+      } else {
+        toast.error(message);
+      }
     }
   }
 
