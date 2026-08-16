@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 // Variant
 interface IVariant {
+     _id: Types.ObjectId;
     sku: string;
     attributes: Record<string, string>;
     price: number;

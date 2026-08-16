@@ -4,15 +4,15 @@ import { Product } from "../models/Products.js"
 export const getProducts = async () => {
     try {
         const products = await Product.find()
-        .populate("category", "category")
-        .populate("brand", "name")
+            .populate("category", "category")
+            .populate("brand", "name")
         return products
     } catch (error) {
         console.log(error)
     }
 }
 
-export const createProducts = async ( sellerID: string, payload: CreateProductPayload) => {
+export const createProducts = async (sellerID: string, payload: CreateProductPayload) => {
     try {
         const product = Product.create({ sellerID, ...payload })
 
@@ -31,6 +31,21 @@ export const createProducts = async ( sellerID: string, payload: CreateProductPa
 export const getProductsByIds = async (ids: string[]) => {
     if (!ids || ids.length === 0) return [];
     return Product.find({ _id: { $in: ids } }).lean();
+};
+
+//checking stocks
+export const checkStocks = async (productID: string, quantity: number) => {
+  
+    const product = await Product.findById(productID).lean();
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  return {
+    available: product.stock >= quantity,
+    stock: product.stock,
+  };
 };
 
 export const updateProducts = () => {
